@@ -1,0 +1,5 @@
+# Poetry virtual environment
+.venv/
+
+# Build artifacts
+dist/
