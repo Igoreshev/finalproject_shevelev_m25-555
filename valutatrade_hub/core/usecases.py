@@ -1,16 +1,18 @@
-
 import json
 import hashlib
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 from .models import User
-from .exceptions import InsufficientFundsError
+from .exceptions import InsufficientFundsError, ApiRequestError
 from valutatrade_hub.infra.settings import SettingsLoader
 from valutatrade_hub.decorators import log_action
-
 from valutatrade_hub.core.currencies import get_currency
+from valutatrade_hub.core.utils import (
+    normalize_currency_code,
+    validate_amount,
+)
 
 
 
@@ -19,11 +21,11 @@ settings = SettingsLoader()
 DATA_DIR: Path = settings.get("DATA_DIR")
 USERS_FILE: Path = settings.get("USERS_FILE")
 PORTFOLIOS_FILE: Path = settings.get("PORTFOLIOS_FILE")
-SESSION_FILE: Path = DATA_DIR / "session.json"
 RATES_FILE: Path = settings.get("RATES_FILE")
+SESSION_FILE: Path = DATA_DIR / "session.json"
 
-RATES_TTL_SECONDS: int = settings.get("RATES_TTL_SECONDS")
 BASE_CURRENCY: str = settings.get("BASE_CURRENCY")
+RATES_TTL_SECONDS: int = settings.get("RATES_TTL_SECONDS")
 
 
 
@@ -92,6 +94,7 @@ def register_user(username: str, password: str) -> str:
         f"Войдите: login --username {username} --password ****"
     )
 
+
 @log_action("LOGIN")
 def login_user(username: str, password: str) -> str:
     users = _load_json(USERS_FILE, [])
@@ -115,16 +118,17 @@ def login_user(username: str, password: str) -> str:
     return f"Вы вошли как '{username}'"
 
 
-
 def show_portfolio(base_currency: str | None = None) -> str:
-    base_currency = (base_currency or BASE_CURRENCY).upper()
+    base_currency = normalize_currency_code(base_currency or BASE_CURRENCY)
 
     session = _load_json(SESSION_FILE, {})
     if not session:
         raise ValueError("Сначала выполните login")
 
     portfolios = _load_json(PORTFOLIOS_FILE, [])
-    portfolio = next(p for p in portfolios if p["user_id"] == session["user_id"])
+    portfolio = next(
+        p for p in portfolios if p["user_id"] == session["user_id"]
+    )
 
     if not portfolio.get("wallets"):
         return f"Портфель пользователя '{session['username']}' пуст"
@@ -172,31 +176,21 @@ def buy_currency(currency_code: str, amount: float) -> str:
     if not session:
         raise ValueError("Сначала выполните login")
 
-    try:
-        amount = float(amount)
-    except (TypeError, ValueError):
-        raise ValueError("'amount' должен быть положительным числом")
-
-    if amount <= 0:
-        raise ValueError("'amount' должен быть положительным числом")
-
-
+    currency_code = normalize_currency_code(currency_code)
+    amount = validate_amount(amount)
     currency = get_currency(currency_code)
 
     portfolios = _load_json(PORTFOLIOS_FILE, [])
     portfolio = next(
-        (p for p in portfolios if p["user_id"] == session["user_id"]),
-        None,
+        p for p in portfolios if p["user_id"] == session["user_id"]
     )
-    if not portfolio:
-        raise ValueError("Портфель пользователя не найден")
 
     wallets = portfolio.setdefault("wallets", {})
-
     wallet = wallets.setdefault(currency.code, {"balance": 0.0})
-    old_balance = wallet["balance"]
 
+    old_balance = wallet["balance"]
     wallet["balance"] = round(old_balance + amount, 8)
+
     _save_json(PORTFOLIOS_FILE, portfolios)
 
     rate = get_rate(currency.code, BASE_CURRENCY, silent=True)
@@ -215,23 +209,14 @@ def sell_currency(currency_code: str, amount: float) -> str:
     if not session:
         raise ValueError("Сначала выполните login")
 
-    try:
-        amount = float(amount)
-    except (TypeError, ValueError):
-        raise ValueError("'amount' должен быть положительным числом")
-
-    if amount <= 0:
-        raise ValueError("'amount' должен быть положительным числом")
-
+    currency_code = normalize_currency_code(currency_code)
+    amount = validate_amount(amount)
     currency = get_currency(currency_code)
 
     portfolios = _load_json(PORTFOLIOS_FILE, [])
     portfolio = next(
-        (p for p in portfolios if p["user_id"] == session["user_id"]),
-        None,
+        p for p in portfolios if p["user_id"] == session["user_id"]
     )
-    if not portfolio:
-        raise ValueError("Портфель пользователя не найден")
 
     wallets = portfolio.get("wallets", {})
 
@@ -264,8 +249,10 @@ def sell_currency(currency_code: str, amount: float) -> str:
     )
 
 
-
 def get_rate(from_code: str, to_code: str, silent: bool = False) -> float | str:
+    from_code = normalize_currency_code(from_code)
+    to_code = normalize_currency_code(to_code)
+
     from_currency = get_currency(from_code)
     to_currency = get_currency(to_code)
 
@@ -273,15 +260,12 @@ def get_rate(from_code: str, to_code: str, silent: bool = False) -> float | str:
     rates = _load_json(RATES_FILE, {})
 
     pair_key = f"{from_currency.code}_{to_currency.code}"
-    ttl = settings.get("RATES_TTL_SECONDS")
 
     if pair_key in rates:
         updated_at = datetime.fromisoformat(rates[pair_key]["updated_at"])
-        if (now - updated_at).total_seconds() < ttl:
+        if (now - updated_at).total_seconds() < RATES_TTL_SECONDS:
             rate = rates[pair_key]["rate"]
-            if silent:
-                return rate
-            return (
+            return rate if silent else (
                 f"Курс {from_currency.code}→{to_currency.code}: {rate:.8f}\n"
                 f"(обновлено: {updated_at.isoformat()})"
             )
@@ -311,11 +295,7 @@ def get_rate(from_code: str, to_code: str, silent: bool = False) -> float | str:
 
     _save_json(RATES_FILE, rates)
 
-    if silent:
-        return rate
-
-    return (
+    return rate if silent else (
         f"Курс {from_currency.code}→{to_currency.code}: {rate:.8f}\n"
         f"(обновлено: {now.isoformat()})"
     )
-

@@ -1,6 +1,5 @@
 
 from functools import wraps
-from datetime import datetime
 from valutatrade_hub.logging_config import setup_logging
 
 logger = setup_logging()
