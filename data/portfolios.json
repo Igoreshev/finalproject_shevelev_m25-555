@@ -1,0 +1,18 @@
+[
+  {
+    "user_id": 1,
+    "wallets": {
+      "BTC": {
+        "balance": 0.04
+      }
+    }
+  },
+  {
+    "user_id": 2,
+    "wallets": {
+      "BTC": {
+        "balance": 0.04
+      }
+    }
+  }
+]

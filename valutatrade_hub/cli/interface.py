@@ -1,2 +1,72 @@
+import argparse
+from valutatrade_hub.core.usecases import (
+    register_user,
+    login_user,
+    show_portfolio,
+    buy_currency,
+    sell_currency,
+    get_rate,
+)
+
+
+
 def run_cli():
-    print("Первая попытка запустить проект!")
+    parser = argparse.ArgumentParser(prog="valutatrade-hub")
+    subparsers = parser.add_subparsers(dest="command")
+
+    # register
+    register_parser = subparsers.add_parser("register")
+    register_parser.add_argument("--username", required=True)
+    register_parser.add_argument("--password", required=True)
+
+    # login
+    login_parser = subparsers.add_parser("login")
+    login_parser.add_argument("--username", required=True)
+    login_parser.add_argument("--password", required=True)
+
+    # show-portfolio
+    show_parser = subparsers.add_parser("show-portfolio")
+    show_parser.add_argument("--base", default="USD")
+
+    # buy
+    buy_parser = subparsers.add_parser("buy")
+    buy_parser.add_argument("--currency", required=True)
+    buy_parser.add_argument("--amount", required=True, type=float)
+
+    # sell
+    sell_parser = subparsers.add_parser("sell")
+    sell_parser.add_argument("--currency", required=True)
+    sell_parser.add_argument("--amount", required=True, type=float)
+
+    # get-rate
+    rate_parser = subparsers.add_parser("get-rate", help="Получить курс валют")
+    rate_parser.add_argument("--from", dest="from_currency", required=True)
+    rate_parser.add_argument("--to", dest="to_currency", required=True)
+
+
+    args = parser.parse_args()
+
+    try:
+        if args.command == "register":
+            print(register_user(args.username, args.password))
+
+        elif args.command == "login":
+            print(login_user(args.username, args.password))
+
+        elif args.command == "show-portfolio":
+            print(show_portfolio(args.base))
+
+        elif args.command == "buy":
+            print(buy_currency(args.currency, args.amount))
+
+        elif args.command == "sell":
+            print(sell_currency(args.currency, args.amount))
+
+        elif args.command == "get-rate":
+            print(get_rate(args.from_currency, args.to_currency))
+
+        else:
+            parser.print_help()
+
+    except ValueError as e:
+        print(e)
