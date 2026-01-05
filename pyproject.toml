@@ -5,14 +5,19 @@ description = ""
 authors = ["Shevelev"]
 readme = "README.md"
 
-packages = [{ include = "final_project" }]
+packages = [{ include = "valutatrade_hub" }]
 
 [tool.poetry.dependencies]
 python = ">=3.12"
 
 [tool.poetry.scripts]
-project = "final_project.main:main"
+project = "valutatrade_hub.main:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "ruff (>=0.14.10,<0.15.0)"
+]
