@@ -8,6 +8,11 @@ from valutatrade_hub.core.usecases import (
     get_rate,
 )
 
+from valutatrade_hub.core.exceptions import (
+    InsufficientFundsError,
+    CurrencyNotFoundError,
+    ApiRequestError,
+)
 
 
 def run_cli():
@@ -67,6 +72,17 @@ def run_cli():
 
         else:
             parser.print_help()
+
+    except InsufficientFundsError as e:
+        print(e)
+
+    except CurrencyNotFoundError as e:
+        print(e)
+        print("Используйте команду get-rate для просмотра доступных валют")
+
+    except ApiRequestError as e:
+        print(e)
+        print("Повторите попытку позже или проверьте соединение")
 
     except ValueError as e:
         print(e)

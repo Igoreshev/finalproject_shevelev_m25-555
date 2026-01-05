@@ -1,0 +1,6 @@
+INFO 2026-01-06 01:03:06,374 BUY currency='BTC' amount=0.01 result=OK
+INFO 2026-01-06 01:03:55,654 SELL currency='BTC' amount=0.005 result=OK
+INFO 2026-01-06 01:14:40,016 LOGIN currency='alice' amount=1234 result=OK
+INFO 2026-01-06 01:16:42,473 BUY currency='BTC' amount=0.01 result=OK
+INFO 2026-01-06 01:16:55,062 SELL currency='BTC' amount=0.005 result=OK
+INFO 2026-01-06 01:19:16,083 SELL currency='BTC' amount=10.0 result=ERROR error_type=InsufficientFundsError error_message='Недостаточно средств: доступно 0.0600 BTC, требуется 10.0000 BTC'

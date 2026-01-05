@@ -14,7 +14,7 @@ class User:
         registration_date: datetime,
     ):
         self._user_id = user_id
-        self.username = username            # через сеттер
+        self.username = username           
         self._hashed_password = hashed_password
         self._salt = salt
         self._registration_date = registration_date
@@ -33,7 +33,6 @@ class User:
     def registration_date(self) -> datetime:
         return self._registration_date
 
-    # ===== СЕТТЕРЫ =====
 
     @username.setter
     def username(self, value: str):
@@ -41,7 +40,6 @@ class User:
             raise ValueError("Имя пользователя не может быть пустым")
         self._username = value
 
-    # ===== ЛОГИКА =====
 
     def get_user_info(self) -> dict:
         """
@@ -73,7 +71,6 @@ class User:
         hashed = self._hash_password(password, self._salt)
         return hashed == self._hashed_password
 
-    # ===== ВСПОМОГАТЕЛЬНОЕ =====
 
     @staticmethod
     def _hash_password(password: str, salt: str) -> str:
@@ -86,9 +83,8 @@ class User:
 class Wallet:
     def __init__(self, currency_code: str, balance: float = 0.0):
         self.currency_code = currency_code
-        self.balance = balance  # через сеттер
+        self.balance = balance
 
-    # ===== ГЕТТЕРЫ / СЕТТЕРЫ =====
 
     @property
     def currency_code(self) -> str:
@@ -112,7 +108,6 @@ class Wallet:
             raise ValueError("Баланс не может быть отрицательным")
         self._balance = float(value)
 
-    # ===== ЛОГИКА =====
 
     def deposit(self, amount: float):
         if not isinstance(amount, (int, float)):
@@ -143,7 +138,6 @@ class Portfolio:
         self._user_id = user_id
         self._wallets: Dict[str, Wallet] = wallets or {}
 
-    # ===== ГЕТТЕРЫ =====
 
     @property
     def user(self) -> int:
@@ -151,10 +145,8 @@ class Portfolio:
 
     @property
     def wallets(self) -> Dict[str, Wallet]:
-        # возвращаем копию, чтобы нельзя было изменить напрямую
         return dict(self._wallets)
 
-    # ===== ЛОГИКА =====
 
     def add_currency(self, currency_code: str):
         currency_code = currency_code.upper()
@@ -175,7 +167,6 @@ class Portfolio:
     def get_total_value(self, base_currency: str = "USD") -> float:
         base_currency = base_currency.upper()
 
-        # фиктивные курсы (для учебного проекта)
         exchange_rates = {
             "USD": 1.0,
             "EUR": 1.1,
@@ -194,10 +185,8 @@ class Portfolio:
             value_in_usd = wallet.balance * exchange_rates[currency]
             total += value_in_usd
 
-        # если базовая валюта не USD — пересчитываем
         return total / exchange_rates[base_currency]
 
-    # ===== ОПЕРАЦИИ ПОКУПКИ / ПРОДАЖИ =====
 
     def buy_currency(self, currency_code: str, amount: float, price_in_usd: float):
         """
