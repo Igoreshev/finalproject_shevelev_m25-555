@@ -250,52 +250,85 @@ def sell_currency(currency_code: str, amount: float) -> str:
 
 
 def get_rate(from_code: str, to_code: str, silent: bool = False) -> float | str:
-    from_code = normalize_currency_code(from_code)
-    to_code = normalize_currency_code(to_code)
-
     from_currency = get_currency(from_code)
     to_currency = get_currency(to_code)
 
-    now = datetime.now()
-    rates = _load_json(RATES_FILE, {})
+    now = datetime.utcnow()
+    snapshot = _load_json(RATES_FILE, {})
+
+    if not snapshot or "pairs" not in snapshot:
+        raise ApiRequestError("Курсы недоступны. Обновите данные.")
 
     pair_key = f"{from_currency.code}_{to_currency.code}"
+    pair = snapshot["pairs"].get(pair_key)
 
-    if pair_key in rates:
-        updated_at = datetime.fromisoformat(rates[pair_key]["updated_at"])
-        if (now - updated_at).total_seconds() < RATES_TTL_SECONDS:
-            rate = rates[pair_key]["rate"]
-            return rate if silent else (
-                f"Курс {from_currency.code}→{to_currency.code}: {rate:.8f}\n"
-                f"(обновлено: {updated_at.isoformat()})"
-            )
-
-    fake_rates = {
-        "USD_BTC": 1 / 59337.21,
-        "BTC_USD": 59337.21,
-        "EUR_USD": 1.0786,
-        "USD_EUR": 1 / 1.0786,
-        "ETH_USD": 3720.00,
-        "USD_ETH": 1 / 3720.00,
-    }
-
-    if pair_key not in fake_rates:
+    if not pair:
         raise ApiRequestError(
-            f"Нет данных для {from_currency.code}→{to_currency.code}"
+            f"Курс {from_currency.code}→{to_currency.code} недоступен"
         )
 
-    rate = fake_rates[pair_key]
+    updated_at = datetime.fromisoformat(pair["updated_at"].replace("Z", ""))
+    age = (now - updated_at).total_seconds()
 
-    rates[pair_key] = {
-        "rate": rate,
-        "updated_at": now.isoformat(),
-    }
-    rates["last_refresh"] = now.isoformat()
-    rates["source"] = "Stub"
+    if age > RATES_TTL_SECONDS:
+        raise ApiRequestError(
+            f"Данные по {pair_key} устарели. Обновите курсы."
+        )
 
-    _save_json(RATES_FILE, rates)
+    rate = pair["rate"]
 
-    return rate if silent else (
+    if silent:
+        return rate
+
+    return (
         f"Курс {from_currency.code}→{to_currency.code}: {rate:.8f}\n"
-        f"(обновлено: {now.isoformat()})"
+        f"(обновлено: {pair['updated_at']}, источник: {pair['source']})"
     )
+
+
+def show_rates(
+    currency: str | None = None,
+    top: int | None = None,
+    base: str | None = None,
+) -> str:
+    snapshot = _load_json(RATES_FILE, {})
+
+    if not snapshot or "pairs" not in snapshot or not snapshot["pairs"]:
+        raise ValueError(
+            "Локальный кеш курсов пуст. Выполните 'update-rates', чтобы загрузить данные."
+        )
+
+    pairs = snapshot["pairs"]
+    last_refresh = snapshot.get("last_refresh", "unknown")
+
+    if currency:
+        currency = currency.upper()
+        pairs = {
+            k: v for k, v in pairs.items()
+            if k.startswith(f"{currency}_") or k.endswith(f"_{currency}")
+        }
+
+        if not pairs:
+            raise ValueError(f"Курс для '{currency}' не найден в кеше.")
+
+    if top is not None:
+        pairs = dict(
+            sorted(
+                pairs.items(),
+                key=lambda item: item[1]["rate"],
+                reverse=True,
+            )[:top]
+        )
+
+    pairs = dict(sorted(pairs.items()))
+
+    lines = [
+        f"Rates from cache (updated at {last_refresh}):"
+    ]
+
+    for pair, data in pairs.items():
+        lines.append(
+            f"- {pair}: {data['rate']} (updated {data['updated_at']})"
+        )
+
+    return "\n".join(lines)

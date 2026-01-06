@@ -9,10 +9,7 @@ from .exceptions import InsufficientFundsError, ApiRequestError
 from valutatrade_hub.infra.settings import SettingsLoader
 from valutatrade_hub.decorators import log_action
 from valutatrade_hub.core.currencies import get_currency
-from valutatrade_hub.core.utils import (
-    normalize_currency_code,
-    validate_amount,
-)
+
 
 
 
@@ -300,3 +297,33 @@ def get_rate(from_code: str, to_code: str, silent: bool = False) -> float | str:
         f"Курс {from_currency.code}→{to_currency.code}: {rate:.8f}\n"
         f"(обновлено: {now.isoformat()})"
     )
+
+
+def normalize_currency_code(code: str) -> str:
+    """
+    Приводит код валюты к верхнему регистру и валидирует формат
+    """
+    if not isinstance(code, str):
+        raise ValueError("Код валюты должен быть строкой")
+
+    code = code.strip().upper()
+
+    if not (2 <= len(code) <= 5) or " " in code:
+        raise ValueError(f"Некорректный код валюты '{code}'")
+
+    return code
+
+
+def validate_amount(amount) -> float:
+    """
+    Проверяет, что amount — положительное число
+    """
+    try:
+        amount = float(amount)
+    except (TypeError, ValueError):
+        raise ValueError("'amount' должен быть числом")
+
+    if amount <= 0:
+        raise ValueError("'amount' должен быть положительным числом")
+
+    return amount

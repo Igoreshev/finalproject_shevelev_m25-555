@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 from .cli.interface import run_cli
 
 def main():
