@@ -1,31 +1,16 @@
 
-.venv/
-
-
-dist/
-
-.venv/
-dist/
-__pycache__/
-*.pyc
-
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
 
-dist/
-build/
-*.egg-info/
+.venv/
+.env
 
 logs/*.log
 
-data/session.json
-
-data/*.json
+dist/
+*.egg-info/
 
 .DS_Store
 Thumbs.db
 
-.idea/
-.vscode/
+
