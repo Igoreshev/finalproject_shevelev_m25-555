@@ -159,16 +159,24 @@ rates.json
 
 ### Команды CLI
 Регистрация
-register --username alice --password 1234
-Логин
-login --username alice --password 1234
+poetry run project register --username alice --password 1234
+Вход в систему
+poetry run project login --username alice --password 1234
 Просмотр портфеля
-show-portfolio
+poetry run project show-portfolio
+Просмотр с указанием базовой валюты
+poetry run project show-portfolio --base USD
 Покупка валюты
-buy --currency BTC --amount 0.05
+poetry run project buy --currency BTC --amount 0.05
 Продажа валюты
-sell --currency BTC --amount 0.01
+poetry run project sell --currency BTC --amount 0.01
 Получение курса
-get-rate --from BTC --to USD
+poetry run project get-rate --from BTC --to USD
 Обновление курсов
-update-rates
+poetry run project update-rates
+Просмотр курсов из локального кеша 
+poetry run project show-rates
+Фильтрация по валюте
+poetry run project show-rates --currency BTC
+Топ курсов 
+poetry run project show-rates --top 5
