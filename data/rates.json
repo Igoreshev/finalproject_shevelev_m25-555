@@ -1,18 +1,18 @@
 {
   "pairs": {
     "BTC_USD": {
-      "rate": 93913.0,
-      "updated_at": "2026-01-06T01:16:36.035632Z",
+      "rate": 93553.0,
+      "updated_at": "2026-01-13T18:28:10.182015Z",
       "source": "CoinGeckoClient"
     },
     "ETH_USD": {
-      "rate": 3223.74,
-      "updated_at": "2026-01-06T01:16:36.035632Z",
+      "rate": 3192.54,
+      "updated_at": "2026-01-13T18:28:10.182015Z",
       "source": "CoinGeckoClient"
     },
     "SOL_USD": {
-      "rate": 137.72,
-      "updated_at": "2026-01-06T01:16:36.035632Z",
+      "rate": 143.32,
+      "updated_at": "2026-01-13T18:28:10.182015Z",
       "source": "CoinGeckoClient"
     },
     "EUR_USD": {
@@ -31,5 +31,5 @@
       "source": "ExchangeRateApiClient"
     }
   },
-  "last_refresh": "2026-01-06T01:16:36.035632Z"
+  "last_refresh": "2026-01-13T18:28:10.182015Z"
 }

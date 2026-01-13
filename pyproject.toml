@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "finalproject-shevelev-m25-555"
 version = "0.1.0"
-description = ""
-authors = ["Shevelev"]
+description = "Консольное приложение для работы с валютами и портфелями"
+authors = ["Shevelev <wer.28091@yandex.ru>"]
 readme = "README.md"
 
 packages = [{ include = "valutatrade_hub" }]

@@ -592,5 +592,29 @@
     "rate": 80.8584,
     "timestamp": "2026-01-06T01:16:37.218358Z",
     "source": "ExchangeRateApiClient"
+  },
+  {
+    "id": "BTC_USD_2026-01-13T18:28:10.873690Z",
+    "from_currency": "BTC",
+    "to_currency": "USD",
+    "rate": 93553.0,
+    "timestamp": "2026-01-13T18:28:10.873690Z",
+    "source": "CoinGeckoClient"
+  },
+  {
+    "id": "ETH_USD_2026-01-13T18:28:10.910446Z",
+    "from_currency": "ETH",
+    "to_currency": "USD",
+    "rate": 3192.54,
+    "timestamp": "2026-01-13T18:28:10.910446Z",
+    "source": "CoinGeckoClient"
+  },
+  {
+    "id": "SOL_USD_2026-01-13T18:28:10.933014Z",
+    "from_currency": "SOL",
+    "to_currency": "USD",
+    "rate": 143.32,
+    "timestamp": "2026-01-13T18:28:10.933014Z",
+    "source": "CoinGeckoClient"
   }
 ]

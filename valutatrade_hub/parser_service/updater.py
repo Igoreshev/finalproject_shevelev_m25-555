@@ -33,7 +33,6 @@ class RatesUpdater:
                 for pair_key, rate in rates.items():
                     from_currency, to_currency = pair_key.split("_")
 
-                    # обновляем snapshot
                     self.storage.update_snapshot(
                         from_currency=from_currency,
                         to_currency=to_currency,
@@ -42,7 +41,7 @@ class RatesUpdater:
                         timestamp=now,
                     )
 
-                    # пишем историю
+
                     self.storage.append_history(
                         from_currency=from_currency,
                         to_currency=to_currency,

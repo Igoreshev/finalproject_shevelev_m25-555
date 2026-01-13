@@ -49,6 +49,7 @@ def _save_json(path: Path, data):
 
 @log_action("REGISTER")
 def register_user(username: str, password: str) -> str:
+    "Регистрация нового пользователя"
     if not username or not username.strip():
         raise ValueError("Имя пользователя не может быть пустым")
 
@@ -97,6 +98,7 @@ def register_user(username: str, password: str) -> str:
 
 @log_action("LOGIN")
 def login_user(username: str, password: str) -> str:
+    "Вход пользователя в сисетму"
     users = _load_json(USERS_FILE, [])
     user_data = next((u for u in users if u["username"] == username), None)
 
@@ -119,6 +121,7 @@ def login_user(username: str, password: str) -> str:
 
 
 def show_portfolio(base_currency: str | None = None) -> str:
+    "Отображение баланса"
     base_currency = normalize_currency_code(base_currency or BASE_CURRENCY)
 
     session = _load_json(SESSION_FILE, {})
@@ -172,6 +175,7 @@ def show_portfolio(base_currency: str | None = None) -> str:
 
 @log_action("BUY")
 def buy_currency(currency_code: str, amount: float) -> str:
+    "Покупка и добавление валюты"
     session = _load_json(SESSION_FILE, {})
     if not session:
         raise ValueError("Сначала выполните login")
@@ -205,6 +209,7 @@ def buy_currency(currency_code: str, amount: float) -> str:
 
 @log_action("SELL")
 def sell_currency(currency_code: str, amount: float) -> str:
+    "Продажа валюты"
     session = _load_json(SESSION_FILE, {})
     if not session:
         raise ValueError("Сначала выполните login")
@@ -250,6 +255,7 @@ def sell_currency(currency_code: str, amount: float) -> str:
 
 
 def get_rate(from_code: str, to_code: str, silent: bool = False) -> float | str:
+    "Возвращает курс валюты"
     from_currency = get_currency(from_code)
     to_currency = get_currency(to_code)
 
@@ -291,6 +297,7 @@ def show_rates(
     top: int | None = None,
     base: str | None = None,
 ) -> str:
+    "Отображение курса валют"
     snapshot = _load_json(RATES_FILE, {})
 
     if not snapshot or "pairs" not in snapshot or not snapshot["pairs"]:

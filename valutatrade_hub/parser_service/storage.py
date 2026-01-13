@@ -1,14 +1,12 @@
 import json
 from pathlib import Path
 from datetime import datetime, timezone
-from typing import Dict
 
 from .config import ParserConfig
 
 
 class RatesStorage:
     def __init__(self, config: ParserConfig):
-        # Пути к файлам
         self.rates_path = Path(config.RATES_FILE_PATH)
         self.history_path = Path(config.HISTORY_FILE_PATH)
 
@@ -45,7 +43,7 @@ class RatesStorage:
         current = snapshot["pairs"].get(pair_key)
         if current:
             if current["updated_at"] >= now:
-                return  # не обновляем более старым значением
+                return 
 
         snapshot["pairs"][pair_key] = {
             "rate": rate,

@@ -18,11 +18,11 @@ def setup_logging(level=logging.INFO):
     logger.setLevel(level)
 
     if logger.handlers:
-        return logger  # чтобы не плодить хендлеры
+        return logger
 
     handler = RotatingFileHandler(
         LOG_FILE,
-        maxBytes=1_000_000,  # ~1MB
+        maxBytes=1_000_000,
         backupCount=3,
         encoding="utf-8",
     )

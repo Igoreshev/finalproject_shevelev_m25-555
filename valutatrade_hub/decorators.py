@@ -25,7 +25,7 @@ def log_action(action: str, verbose: bool = False):
                     f"{action} currency='{currency}' "
                     f"amount={amount} result=OK"
                 )
-
+                
                 return result
 
             except Exception as e:
@@ -35,7 +35,7 @@ def log_action(action: str, verbose: bool = False):
                     f"error_type={type(e).__name__} "
                     f"error_message='{e}'"
                 )
-                raise  # пробрасываем дальше
+                raise
 
         return wrapper
 

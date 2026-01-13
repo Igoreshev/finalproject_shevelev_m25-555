@@ -118,6 +118,7 @@ def login_user(username: str, password: str) -> str:
 
 
 def show_portfolio(base_currency: str | None = None) -> str:
+    "Профиль юзера"
     base_currency = normalize_currency_code(base_currency or BASE_CURRENCY)
 
     session = _load_json(SESSION_FILE, {})
@@ -130,7 +131,7 @@ def show_portfolio(base_currency: str | None = None) -> str:
     if not portfolio.get("wallets"):
         return f"Портфель пользователя '{session['username']}' пуст"
 
-    exchange_rates = {
+    EXCHANGE_RATES = {
         "USD": 1.0,
         "EUR": 1.07,
         "BTC": 59300.0,
@@ -138,19 +139,19 @@ def show_portfolio(base_currency: str | None = None) -> str:
         "RUB": 0.010,
     }
 
-    if base_currency not in exchange_rates:
+    if base_currency not in EXCHANGE_RATES:
         raise ValueError(f"Неизвестная базовая валюта '{base_currency}'")
 
     total = 0.0
     lines = []
 
     for code, wallet in portfolio["wallets"].items():
-        if code not in exchange_rates:
+        if code not in EXCHANGE_RATES:
             continue
 
         balance = wallet["balance"]
-        usd_value = balance * exchange_rates[code]
-        base_value = usd_value / exchange_rates[base_currency]
+        usd_value = balance * EXCHANGE_RATES[code]
+        base_value = usd_value / EXCHANGE_RATES[base_currency]
 
         total += base_value
         lines.append(
@@ -170,6 +171,7 @@ def show_portfolio(base_currency: str | None = None) -> str:
 
 @log_action("BUY")
 def buy_currency(currency_code: str, amount: float) -> str:
+    "Покупка и добавление"
     session = _load_json(SESSION_FILE, {})
     if not session:
         raise ValueError("Сначала выполните login")
@@ -203,6 +205,7 @@ def buy_currency(currency_code: str, amount: float) -> str:
 
 @log_action("SELL")
 def sell_currency(currency_code: str, amount: float) -> str:
+    "Продажа валюты"
     session = _load_json(SESSION_FILE, {})
     if not session:
         raise ValueError("Сначала выполните login")
@@ -248,6 +251,7 @@ def sell_currency(currency_code: str, amount: float) -> str:
 
 
 def get_rate(from_code: str, to_code: str, silent: bool = False) -> float | str:
+    "Возврат валюты"
     from_code = normalize_currency_code(from_code)
     to_code = normalize_currency_code(to_code)
 
@@ -268,7 +272,7 @@ def get_rate(from_code: str, to_code: str, silent: bool = False) -> float | str:
                 f"(обновлено: {updated_at.isoformat()})"
             )
 
-    fake_rates = {
+    FAKE_RATES = {
         "USD_BTC": 1 / 59337.21,
         "BTC_USD": 59337.21,
         "EUR_USD": 1.0786,
@@ -277,12 +281,12 @@ def get_rate(from_code: str, to_code: str, silent: bool = False) -> float | str:
         "USD_ETH": 1 / 3720.00,
     }
 
-    if pair_key not in fake_rates:
+    if pair_key not in FAKE_RATES:
         raise ApiRequestError(
             f"Нет данных для {from_currency.code}→{to_currency.code}"
         )
 
-    rate = fake_rates[pair_key]
+    rate = FAKE_RATES[pair_key]
 
     rates[pair_key] = {
         "rate": rate,
@@ -300,9 +304,7 @@ def get_rate(from_code: str, to_code: str, silent: bool = False) -> float | str:
 
 
 def normalize_currency_code(code: str) -> str:
-    """
-    Приводит код валюты к верхнему регистру и валидирует формат
-    """
+    "Верхний регситр и валидация"
     if not isinstance(code, str):
         raise ValueError("Код валюты должен быть строкой")
 
@@ -315,9 +317,7 @@ def normalize_currency_code(code: str) -> str:
 
 
 def validate_amount(amount) -> float:
-    """
-    Проверяет, что amount — положительное число
-    """
+    "Проверка на положительное число"
     try:
         amount = float(amount)
     except (TypeError, ValueError):

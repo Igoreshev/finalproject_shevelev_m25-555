@@ -20,7 +20,6 @@ from valutatrade_hub.parser_service.api_clients import (
 )
 from valutatrade_hub.parser_service.storage import RatesStorage
 from valutatrade_hub.parser_service.updater import RatesUpdater
-from valutatrade_hub.core.exceptions import ApiRequestError
 from valutatrade_hub.core.usecases import show_rates
 
 
@@ -77,7 +76,6 @@ def run_cli():
     show_rates_parser.add_argument("--top", type=int)
     show_rates_parser.add_argument("--base")
 
-
     args = parser.parse_args()
 
     try:
@@ -98,7 +96,6 @@ def run_cli():
 
         elif args.command == "get-rate":
             print(get_rate(args.from_currency, args.to_currency))
-
 
         elif args.command == "update-rates":
             print("INFO: Starting rates update...")
@@ -136,7 +133,6 @@ def run_cli():
                     base=args.base,
                 )
             )
-
 
         else:
             parser.print_help()

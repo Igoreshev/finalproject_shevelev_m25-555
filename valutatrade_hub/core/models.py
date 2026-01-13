@@ -19,7 +19,6 @@ class User:
         self._salt = salt
         self._registration_date = registration_date
 
-    # ===== ГЕТТЕРЫ =====
 
     @property
     def user_id(self) -> int:
